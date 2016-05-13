@@ -1,5 +1,6 @@
 package sample;
 
+import jdk.nashorn.internal.AssertsEnabled;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -87,12 +88,27 @@ public class ToDoDatabaseTest {
 
     @Test
     public void testToggleToDo()throws Exception{
-        Connection conn = DriverManager.getConnection("jdbc:h2:./main");
-        String firstToDoText = "UnitTest-ToDo1";
-        todoDatabase.insertToDo(conn,firstToDoText);
+
+            Connection conn = DriverManager.getConnection("jdbc:h2:./main");
+            String todoText = "UnitTest-ToDo";
+//          todoDatabase.deleteToDo(conn,todoText);
+            todoDatabase.insertToDo(conn, todoText);
+            PreparedStatement stmt = conn.prepareStatement("SELECT * FROM todos WHERE text= ?");
+            stmt.setString(1, todoText);
+            ResultSet results = stmt.executeQuery();
+            results.next();
+            boolean beforeToggleModel = results.getBoolean("is_done");
+            todoDatabase.toggleToDo(conn, results.getInt("id"));
+            results = stmt.executeQuery();
+            results.next();
+            boolean afterToggleModel = results.getBoolean("is_done");
+            assertNotEquals(beforeToggleModel, afterToggleModel);
+//        }
+
+    /*    Connection conn = DriverManager.getConnection("jdbc:h2:./main");
         ArrayList<ToDoItem> todos = todoDatabase.selectToDos(conn);
-        System.out.println(todos);
-        todoDatabase.toggleToDo(conn,todos.size());
+        todoDatabase.toggleToDo(conn,todos.g);*/
+          todoDatabase.deleteToDo(conn,todoText);
 
     }
 
