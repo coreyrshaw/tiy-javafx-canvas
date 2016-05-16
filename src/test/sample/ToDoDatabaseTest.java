@@ -41,11 +41,14 @@ public class ToDoDatabaseTest {
     @Test
     public void testInsertToDo() throws Exception {
         Connection conn = DriverManager.getConnection("jdbc:h2:./main");
-        String todoText = "UnitTest-ToDo";
-        todoDatabase.insertToDo(conn, todoText);
+        String userName = "coreyrshaw";
+        String fullName = "Corey Shaw";
+        todoDatabase.insertToDo(conn, userName);
         // make sure we can retrieve the todo we just created
-        PreparedStatement stmt = conn.prepareStatement("SELECT * FROM todos where text = ?");
-        stmt.setString(1, todoText);
+        PreparedStatement stmt = conn.prepareStatement("SELECT * FROM todos INNER JOIN users ON users.id = todos.user_id WHERE users.id = 1");
+        stmt.setString(1, userName);
+        stmt.setString(2,fullName);
+
         ResultSet results = stmt.executeQuery();
         assertNotNull(results);
         // count the records in results to make sure we get what we expected
@@ -55,7 +58,7 @@ public class ToDoDatabaseTest {
         }
         assertEquals(1, numResults);
 
-        todoDatabase.deleteToDo(conn, todoText);
+     //   todoDatabase.deleteToDo(conn, todoText,results.getInt(1));//,results.getInt("id")
 
         // make sure there are no more records for our test todo
         results = stmt.executeQuery();
@@ -66,23 +69,24 @@ public class ToDoDatabaseTest {
         assertEquals(0, numResults);
     }
 
-    @Test
+  @Test
     public void testSelectAllToDos() throws Exception {
         Connection conn = DriverManager.getConnection("jdbc:h2:./main");
         String firstToDoText = "UnitTest-ToDo1";
         String secondToDoText = "UnitTest-ToDo2";
 
-        todoDatabase.insertToDo(conn, firstToDoText);
-        todoDatabase.insertToDo(conn, secondToDoText);
+        int firstToDoID = todoDatabase.insertToDo(conn, firstToDoText);
+        int secondToDoID = todoDatabase.insertToDo(conn, secondToDoText);
 
         ArrayList<ToDoItem> todos = todoDatabase.selectToDos(conn);
+
         System.out.println("Found " + todos.size() + " todos in the database");
 
         assertTrue("There should be at least 2 todos in the database (there are " +
                 todos.size() + ")", todos.size() > 1);
 
-        todoDatabase.deleteToDo(conn, firstToDoText);
-        todoDatabase.deleteToDo(conn, secondToDoText);
+        todoDatabase.deleteToDo(conn, firstToDoText,firstToDoID);
+        todoDatabase.deleteToDo(conn, secondToDoText,secondToDoID);
     }
 
 
@@ -92,7 +96,7 @@ public class ToDoDatabaseTest {
             Connection conn = DriverManager.getConnection("jdbc:h2:./main");
             String todoText = "UnitTest-ToDo";
 //          todoDatabase.deleteToDo(conn,todoText);
-            todoDatabase.insertToDo(conn, todoText);
+            int toDoID= todoDatabase.insertToDo(conn, todoText);
             PreparedStatement stmt = conn.prepareStatement("SELECT * FROM todos WHERE text= ?");
             stmt.setString(1, todoText);
             ResultSet results = stmt.executeQuery();
@@ -105,28 +109,27 @@ public class ToDoDatabaseTest {
             assertNotEquals(beforeToggleModel, afterToggleModel);
 //        }
 
-    /*    Connection conn = DriverManager.getConnection("jdbc:h2:./main");
-        ArrayList<ToDoItem> todos = todoDatabase.selectToDos(conn);
-        todoDatabase.toggleToDo(conn,todos.g);*/
-          todoDatabase.deleteToDo(conn,todoText);
+          ArrayList<ToDoItem> todos = todoDatabase.selectToDos(conn);
+          todoDatabase.toggleToDo(conn,toDoID);
+          todoDatabase.deleteToDo(conn,todoText,toDoID);
 
     }
 
-
-
-
+    @Test
+    public void testDeleteToDo()throws Exception {//
+        Connection conn = DriverManager.getConnection("jdbc:h2:./main");
+        String todoText = "How are you?";
+        todoDatabase.insertToDo(conn, todoText);
+        PreparedStatement stmt = conn.prepareStatement("SELECT * FROM todos WHERE text= ?");
+        stmt.setString(1, todoText);
+        ResultSet results = stmt.executeQuery();
+        results.next();
+        int idBeforeDelete = results.getInt("id");
+        todoDatabase.insertToDo(conn, todoText);
+        stmt = conn.prepareStatement("SELECT * FROM todos WHERE text= ?");
 
     }
-
-
-
-
-
-
-
-
-
-
+    }
 
 
 

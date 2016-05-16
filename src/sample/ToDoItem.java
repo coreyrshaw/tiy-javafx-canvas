@@ -17,9 +17,10 @@ public class ToDoItem {
 
 
     }
-        public ToDoItem(String text) {
+        public ToDoItem(String text,int id) {
         this.text = text;
         this.isDone = false;
+        this.id = id;
     }
 
     public ToDoItem() {

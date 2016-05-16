@@ -13,6 +13,15 @@ public class ToDoDatabase {
 
     public final static String DB_URL = "jdbc:h2:./main";
 
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public int id;
 
 
     public void init()throws SQLException {
@@ -22,15 +31,23 @@ public class ToDoDatabase {
         stmt.execute("CREATE TABLE IF NOT EXISTS todos (id IDENTITY, text VARCHAR, is_done BOOLEAN)");
     }
 
-    public void insertToDo(Connection conn, String text) throws SQLException {
+    public int  insertToDo(Connection conn, String text) throws SQLException {
         PreparedStatement stmt = conn.prepareStatement("INSERT INTO todos VALUES (NULL, ?, false)");
         stmt.setString(1, text);
-        stmt.execute();
+      //  stmt.setBoolean(2,false);
+        stmt.executeUpdate();
+        ResultSet results = stmt.getGeneratedKeys();
+        results.next();
+        int id= results.getInt("");
+        return id;
     }
-    public void deleteToDo(Connection conn, String text) throws SQLException {
-        PreparedStatement stmt = conn.prepareStatement("DELETE FROM todos where text = ?");
+
+    public int deleteToDo(Connection conn, String text,int id) throws SQLException {
+        PreparedStatement stmt = conn.prepareStatement("DELETE FROM todos where text = ? ");//is_done = ?
         stmt.setString(1, text);
+        stmt.setInt(2,id);
         stmt.execute();
+        return id;
     }
 
 
@@ -46,6 +63,7 @@ public class ToDoDatabase {
         }
         return items;
     }
+
 
     public static void toggleToDo(Connection conn, int id) throws SQLException {
         PreparedStatement stmt = conn.prepareStatement("UPDATE todos SET is_done = NOT is_done WHERE id = ?");

@@ -49,6 +49,7 @@ public class Controller implements Initializable {
             //      if (retrievedList != null) {
             for (ToDoItem item : todos) {
                 todoItems.add(item);
+
             }
             //     }
             todoList.setItems(todoItems);
@@ -67,18 +68,17 @@ public class Controller implements Initializable {
         }
     }
 
-    public void addItem() {
+   /* public void addItem() {
         try {
              System.out.println("Adding item ...");
              Connection conn = DriverManager.getConnection("jdbc:h2:./main");
-             todoDatabase.insertToDo(conn,todoText.getText());
-             todoItems.add(new ToDoItem(todoText.getText()));
+             int id= todoDatabase.insertToDo(conn,todoText.getText());
+             todoItems.add(new ToDoItem(todoText.getText(),id));
              todoText.setText("");
-
         }catch (SQLException sqlException) {
 
         }
-    }
+    }*/
     public void removeItem() {
         ToDoItem todoItem = (ToDoItem)todoList.getSelectionModel().getSelectedItem();
         System.out.println("Removing " + todoItem.text + " ...");
@@ -86,14 +86,13 @@ public class Controller implements Initializable {
     }
 
     public void deleteToDo() {
-
        try {
         ToDoItem todoItem = (ToDoItem)todoList.getSelectionModel().getSelectedItem();
         System.out.println("Removing " + todoItem.text + " ...");
         todoItems.remove(todoItem);
         Connection conn = DriverManager.getConnection("jdbc:h2:./main");
-        todoDatabase.deleteToDo(conn,todoItem.text);
-                      todoItem = (ToDoItem)todoList.getSelectionModel().getSelectedItem();
+        todoDatabase.deleteToDo(conn,todoItem.text,todoItem.id);//,todoItem.id)
+           // todoItem = (ToDoItem)todoList.getSelectionModel().getSelectedItem();
 
     }catch (SQLException sqlException) {
        }
@@ -102,11 +101,12 @@ public class Controller implements Initializable {
 
 
     public void toggleItem() {
+
         try {
             System.out.println("Toggling item ...");
             ToDoItem todoItem = (ToDoItem) todoList.getSelectionModel().getSelectedItem();
+           // todoItem.id= todoDatabase.getId();
             Connection conn = DriverManager.getConnection("jdbc:h2:./main");
-            Statement stmt = conn.createStatement();
 
             if (todoItem != null) {
                 todoItem.isDone = !todoItem.isDone;
